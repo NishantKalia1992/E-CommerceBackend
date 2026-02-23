@@ -3,8 +3,8 @@ version: '3.8'
 services:
   # 1. Discovery Server (The Phonebook)
   discovery-server:
-    image: nishantkalia13/discovery-server:latest
-    container_name: discovery-server
+    image: nishantkalia13/service-registry:latest
+    container_name: service-registry
     ports:
       - "8761:8761"
     networks:

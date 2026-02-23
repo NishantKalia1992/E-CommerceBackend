@@ -14,9 +14,9 @@ pipeline {
             }
         }
         
-        stage('Build & Push Discovery Server') {
+        stage('Build & Push Service Registry') {
             steps {
-                dir('DescoveryServer') { 
+                dir('ServiceRegistry') { 
                     echo 'Building Discovery Server...'
                     bat 'mvn clean package -DskipTests'
                     withCredentials([usernamePassword(credentialsId: 'DescoveryServer-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
