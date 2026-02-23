@@ -19,7 +19,7 @@ pipeline {
                 dir('ServiceRegistry') { 
                     echo 'Building Discovery Server...'
                     bat 'mvn clean package -DskipTests'
-                    withCredentials([usernamePassword(credentialsId: 'DescoveryServer-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'ServiceRegistry-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                         bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
                         bat 'docker build -t %DOCKERHUB_USERNAME%/discovery-server:latest .'
                         bat 'docker push %DOCKERHUB_USERNAME%/discovery-server:latest'
