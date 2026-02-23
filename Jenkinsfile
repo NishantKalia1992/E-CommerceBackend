@@ -21,8 +21,8 @@ pipeline {
                     bat 'mvn clean package -DskipTests'
                     withCredentials([usernamePassword(credentialsId: 'ServiceRegistry-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                         bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
-                        bat 'docker build -t %DOCKERHUB_USERNAME%/discovery-server:latest .'
-                        bat 'docker push %DOCKERHUB_USERNAME%/discovery-server:latest'
+                        bat 'docker build -t %DOCKERHUB_USERNAME%/service-registry:latest .'
+                        bat 'docker push %DOCKERHUB_USERNAME%/service-registry:latest'
                     }
                 }
             }
