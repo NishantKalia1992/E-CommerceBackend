@@ -1,0 +1,24 @@
+package com.customer.responseDto;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.customer.entities.Address;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class CustomerResponse {
+	private long id;
+	private String fullName;
+	private String username;
+	private String password;
+	private String contactNo;
+	private List<Address> address = new ArrayList<>();
+}
