@@ -19,7 +19,7 @@ pipeline {
                 dir('ServiceRegistry') { 
                     echo 'Building Discovery Server...'
                     bat 'mvn clean package -DskipTests'
-                    withCredentials([usernamePassword(credentialsId: 'ServiceRegistry-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                         bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
                         bat 'docker build -t %DOCKERHUB_USERNAME%/service-registry:latest .'
                         bat 'docker push %DOCKERHUB_USERNAME%/service-registry:latest'
@@ -33,7 +33,7 @@ pipeline {
                 dir('Customer') {
                     echo 'Building Customer Service...'
                     bat 'mvn clean package -DskipTests'
-                    withCredentials([usernamePassword(credentialsId: 'customer-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                         bat 'docker build -t %DOCKERHUB_USERNAME%/customer-service:latest .'
                         bat 'docker push %DOCKERHUB_USERNAME%/customer-service:latest'
                     }
