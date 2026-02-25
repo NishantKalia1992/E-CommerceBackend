@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 @EnableFeignClients
 @SpringBootApplication
+
 public class OrderApplication {
 
 	public static void main(String[] args) {
