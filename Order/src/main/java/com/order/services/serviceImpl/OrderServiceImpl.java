@@ -63,8 +63,8 @@ public class OrderServiceImpl implements OrderService {
 		order.setOrderLines(orderLines);
 		
 //		send notification using kafka
-		orderProducer.sendOrderConfirmation(
-				new OrderConfirmation(request.getRefrence(), request.getTotalAmount(), request.getPaymentMethod(), customer));
+//		orderProducer.sendOrderConfirmation(
+//				new OrderConfirmation(request.getRefrence(), request.getTotalAmount(), request.getPaymentMethod(), customer));
 				
 		
 		Order save = orderRepository.save(order);
