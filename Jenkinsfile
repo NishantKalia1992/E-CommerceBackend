@@ -56,6 +56,10 @@ pipeline {
         
         stage('Deploy Ecosystem') {
             steps {
+                echo 'Cleaning up any ghost containers...'                
+                // The "|| echo" trick forces Jenkins to keep going even if the containers don't exist
+                bat 'docker rm -f service-registry customer-service order-container || echo "Containers already clean"'
+                
                 echo 'Starting Discovery, Customer, Order, Kafka, and MySQL simultaneously...'
                 bat 'docker-compose down'
                 bat 'docker-compose up -d'
