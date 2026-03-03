@@ -66,18 +66,16 @@ pipeline {
             }
         }*/
         // --- 4. DEPLOY TO AWS CLOUD ---
+        // --- 4. DEPLOY TO AWS CLOUD ---
         stage('Deploy to AWS') {
             steps {
                 echo 'Connecting to AWS EC2 Server...'
                 
-                // This block uses the key you just saved in Jenkins
-                sshagent(['aws-ec2-key']) {
-                    
-                    // The magic command: We log in, go to the folder, pull the latest code, and restart Docker!
-                    bat '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@34.224.81.34 "cd E-CommerceBackend && git pull origin main && docker-compose down && docker-compose up -d"
-                    '''
-                }
+                // Bypassing the buggy plugin and using the native Windows SSH tool!
+                // Make sure to update the path to wherever you saved your .pem file
+                bat '''
+                ssh -i "D:\\Tools\\aws-microservices-key.pem" -o StrictHostKeyChecking=no ubuntu@34.224.81.34 "cd E-CommerceBackend && git pull origin main && docker-compose down && docker-compose up -d"
+                '''
             }
         }
     }
