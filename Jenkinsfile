@@ -74,7 +74,7 @@ pipeline {
                 // Bypassing the buggy plugin and using the native Windows SSH tool!
                 // Make sure to update the path to wherever you saved your .pem file
                 bat '''
-                ssh -i "D:\\Tools\\aws-microservices-key.pem" -o StrictHostKeyChecking=no ubuntu@54.82.85.215 "cd E-CommerceBackend && git pull origin main && docker-compose down && docker-compose up -d"
+                ssh -i "D:\\Tools\\aws-microservices-key.pem" -o StrictHostKeyChecking=no ubuntu@54.82.85.215 "cd E-CommerceBackend && git pull origin main && docker-compose down && docker-compose pull && docker-compose up -d"
                 '''
             }
         }
