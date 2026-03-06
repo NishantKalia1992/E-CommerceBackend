@@ -18,13 +18,13 @@ services:
       - "8001:8001" 
     restart: always
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/customer_service
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
+#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/customer_service
+#      SPRING_DATASOURCE_USERNAME: root
+#      SPRING_DATASOURCE_PASSWORD: root
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
     depends_on:
-      - mysql
+ #     - mysql    Need to delete because its no longer, when we move to cloud
       - discovery-server
     networks:
       - spring-network
@@ -37,31 +37,31 @@ services:
       - "8002:8002"
     restart: always
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/order_service
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
+#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/order_service
+#      SPRING_DATASOURCE_USERNAME: root
+#      SPRING_DATASOURCE_PASSWORD: root
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
     depends_on:
-      - mysql
+ #     - mysql
       - kafka
       - discovery-server
     networks:
       - spring-network
 
   # 4. MySQL Database
-  mysql:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-#      MYSQL_DATABASE: order_service
-    ports:
-      - "3362:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - spring-network
+#  mysql:
+#    image: mysql:8.0
+#    environment:
+#      MYSQL_ROOT_PASSWORD: root
+##      MYSQL_DATABASE: order_service
+#    ports:
+#      - "3362:3306"
+#    volumes:
+#      - mysql_data:/var/lib/mysql
+#      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+#    networks:
+#      - spring-network
 
   # 5. Zookeeper & Kafka
   zookeeper:
@@ -92,5 +92,5 @@ networks:
   spring-network:
     driver: bridge
 
-volumes:
-  mysql_data:
+#volumes:
+#  mysql_data:
