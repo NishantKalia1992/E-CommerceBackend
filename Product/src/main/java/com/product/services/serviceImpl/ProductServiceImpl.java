@@ -1,6 +1,8 @@
 package com.product.services.serviceImpl;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.product.entities.Category;
 import com.product.entities.Products;
 import com.product.exceptionHandler.DuplicateResourceExecption;
+import com.product.exceptionHandler.ProductPurchaseException;
 import com.product.exceptionHandler.ResourceNotFoundException;
 import com.product.repositories.CategoryRepository;
 import com.product.repositories.ProductRepository;
@@ -24,6 +27,7 @@ import com.product.requestDto.ProductRequest;
 import com.product.responseDto.ProductResponse;
 import com.product.services.ProductServices;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -181,6 +185,21 @@ public class ProductServiceImpl implements ProductServices{
 		return response;
 	}
 	
+	public ProductPurchaseResponse toproductPurchaseResponse(Products products, double quantity) {
+	    
+	    // Calculate the total price for this specific item
+	    BigDecimal quantityPrice = BigDecimal.valueOf(quantity);
+	    BigDecimal totalPrice = products.getPrice().multiply(quantityPrice);
+	    
+	    return ProductPurchaseResponse.builder()
+	            .productName(products.getName())
+	            .quantityPurchased(quantity)
+	            .totalPrice(totalPrice)
+	            .remainingQuantity(products.getAvailableQuantity()) // This was already reduced in your loop!
+	            .message("Purchase successful")
+	            .build();
+	}
+	
 	
 
 	@Override
@@ -214,10 +233,44 @@ public class ProductServiceImpl implements ProductServices{
                 .build();
 	}
 
+	@Transactional(rollbackOn = ProductPurchaseException.class)
 	@Override
-	public List<ProductPurchaseResponse> listOfPurchaseItem() {
+	public List<ProductPurchaseResponse> listOfPurchaseItem(List<ProductPurchaseRequest> requests) {
+		LOGGER.info("list of all product purchase item");
 		
-		return null;
+		var list = requests.stream().map(ProductPurchaseRequest::getProductId).toList();
+		var orderById = productRepository.findAllByProductIdInOrderByProductId(list);
+		if(list.size()!=orderById.size()) {
+			throw new ProductPurchaseException("One or more products doesn't exist");
+		}
+		var sortedRequest = requests.stream().sorted(Comparator.comparing(ProductPurchaseRequest::getProductId)).toList();
+		var purchasedProducts = new ArrayList<ProductPurchaseResponse>();
+		for(int i=0;i<orderById.size();i++) {
+			var product = orderById.get(i);
+			var productRequest = sortedRequest.get(i);
+			if(product.getAvailableQuantity()<productRequest.getQuantity()) {
+				throw new ProductPurchaseException("insufficient stock for this product id !");
+			}
+			var newAvailableQuantity = product.getAvailableQuantity() - productRequest.getQuantity();
+			product.setAvailableQuantity(newAvailableQuantity);
+			productRepository.save(product);
+			purchasedProducts.add(toproductPurchaseResponse(product,productRequest.getQuantity()));
+		}
+		return purchasedProducts;
+	}
+
+	@Transactional(rollbackOn = Exception.class)
+	@Override
+	public void releaseProduct(List<ProductPurchaseRequest> requests) {
+		LOGGER.info("purchase product back to inventory");
+		for(ProductPurchaseRequest purchaseRequest:requests) {
+			Products products = productRepository.findById(purchaseRequest.getProductId()).orElseThrow(()-> new ResourceNotFoundException("Product not found with id - "+purchaseRequest.getProductId()));
+//			add qantity back to inventory
+			double newAvailableQuantity = products.getAvailableQuantity()+purchaseRequest.getQuantity();
+			products.setAvailableQuantity(newAvailableQuantity);
+			productRepository.save(products);
+		}
+		
 	}
 
 	

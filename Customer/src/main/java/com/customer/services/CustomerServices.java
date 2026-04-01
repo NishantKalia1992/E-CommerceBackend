@@ -10,7 +10,9 @@ public interface CustomerServices {
 	CustomerResponse editCustomer(String username, CustomerRequest request);
 	CustomerResponse findCustomer(String contactNo, Long customerId, String username);
 	CustomerResponse deleteCustomer(String contactNo);
+	CustomerResponse deleteCustomerId(Long id);
 	CustomerResponse getCustomerId(Long id);
+	CustomerResponse getUsername(String username);
 	
 	AddressResponse addAddress(String contactNo, AddressRequest request);
 	AddressResponse editAddress(String contactNo, AddressRequest request);

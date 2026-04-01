@@ -14,6 +14,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class ProductPurchaseResponse {
+	
 	private String productName;
 	private double quantityPurchased;
 	private BigDecimal totalPrice;

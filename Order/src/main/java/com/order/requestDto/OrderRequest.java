@@ -20,7 +20,7 @@ import lombok.Setter;
 public class OrderRequest {
 	private long id;
 	private String refrence;
-	private BigDecimal totalAmount;
+//	private BigDecimal totalAmount;
 	private PaymentMethod paymentMethod;
 	private Long customerId;
 	private List<OrderLine> orderLines;

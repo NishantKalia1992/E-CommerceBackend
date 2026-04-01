@@ -4,14 +4,20 @@ import java.math.BigDecimal;
 
 import com.payment.entities.PaymentMethod;
 
-import lombok.Data;
-@Data
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class PaymentNotificationRequest
 {
 	private String orderReference;
     private BigDecimal amount;
     private PaymentMethod paymentMethod;
-    private String customerFulltname;
+    private String customerFirstname;
     private String customerLastname;
     private String customerEmail;
 }

@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.order.apiResponse.SuccessResponse;
 
-@FeignClient(name = "Customer", url = "http://customer-service:8001/api/auth/customer")
+//@FeignClient(name = "Customer", url = "${customer.client.url}")
+@FeignClient(name = "customer-service", path = "/api/auth/customer")
 public interface CustomerClient {
 	
 	@GetMapping("/customerId/{id}")

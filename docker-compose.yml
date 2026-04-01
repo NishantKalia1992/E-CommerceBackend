@@ -1,69 +1,26 @@
 version: '3.8'
 
-services:
-  # 1. Discovery Server (The Phonebook)
-  discovery-server:
-    image: nishantkalia13/service-registry:latest
-    container_name: service-registry
-    ports:
-      - "8761:8761"
-    networks:
-      - spring-network
-
-  # 2. Customer Service
-  customer-service:
-    image: nishantkalia13/customer-service:latest
-    container_name: customer-service
-    ports:
-      - "8001:8001" 
-    restart: always
+   #1. create a network that connected each other
+networks:
+   spring-network:
+      driver: bridge 
+#=========================================================================================
+   # 2. MySQL Database & messaging
+services :
+  mysql:
+    image: mysql:8.0
     environment:
-#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/customer_service
-#      SPRING_DATASOURCE_USERNAME: root
-#      SPRING_DATASOURCE_PASSWORD: root
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-    depends_on:
- #     - mysql    Need to delete because its no longer, when we move to cloud
-      - discovery-server
-    networks:
-      - spring-network
-
-  # 3. Order Service
-  order-app:
-    image: nishantkalia13/order-service:latest
-    container_name: order-container
+      MYSQL_ROOT_PASSWORD: root
+#      MYSQL_DATABASE: order_service
     ports:
-      - "8002:8002"
-    restart: always
-    environment:
-#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/order_service
-#      SPRING_DATASOURCE_USERNAME: root
-#      SPRING_DATASOURCE_PASSWORD: root
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-    depends_on:
- #     - mysql
-      - kafka
-      - discovery-server
+      - "3362:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - spring-network
-
-  # 4. MySQL Database
-#  mysql:
-#    image: mysql:8.0
-#    environment:
-#      MYSQL_ROOT_PASSWORD: root
-##      MYSQL_DATABASE: order_service
-#    ports:
-#      - "3362:3306"
-#    volumes:
-#      - mysql_data:/var/lib/mysql
-#      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-#    networks:
-#      - spring-network
-
-  # 5. Zookeeper & Kafka
+      
+       # Zookeeper & Kafka
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.4
     environment:
@@ -71,7 +28,8 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     networks:
       - spring-network
-
+      
+      # Kafka
   kafka:
     image: confluentinc/cp-kafka:7.4.4
     depends_on:
@@ -88,9 +46,162 @@ services:
     networks:
       - spring-network
 
-networks:
-  spring-network:
-    driver: bridge
+#============================================================================================================
+
+  # 3. Infrastructure Microservices
+  
+  config-server:
+     image: nishantkalia13/config-server:latest
+     container_name: config-server
+     ports:
+        - "8888:8888"
+     volumes:
+        - ./config-repo:/config
+     networks:
+        - spring-network 
+  
+  discovery-server:
+    image: nishantkalia13/service-registry:latest
+    container_name: service-registry
+    ports:
+      - "8761:8761"
+    depends_on:
+      - config-server
+    environment:
+       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888 
+    networks:
+      - spring-network
+      
+  api-gateway:
+     image: nishantkalia13/gateway-service:latest
+     container_name: gateway-service
+     ports:
+        - 8005:8005
+     depends_on:
+        - config-server
+        - discovery-server
+     environment:
+        SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888 
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+     networks:
+        - spring-network 
+        
+#=================================================================================================================
+   # 4. BUSINESS MICROSERVICES
+  
+  auth-servie:
+     image: nishantkalia13/auth-service:latest
+     container_name: auth-service
+     ports:
+        - 8004:8004
+     depends_on:
+        - config-server 
+        - discovery-server 
+        - mysql
+     environment:
+        SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888 
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+     networks:
+         - spring-network  
+
+  
+  customer-service:
+    image: nishantkalia13/customer-service:latest
+    container_name: customer-service
+    ports:
+      - "8001:8001" 
+    restart: always
+    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/customer_service
+#      SPRING_DATASOURCE_USERNAME: root
+#      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888 
+    depends_on:
+ #     - mysql    Need to delete because its no longer, when we move to cloud
+      - discovery-server
+      - config-server 
+      - mysql 
+    networks:
+      - spring-network
+
+  
+  order-app:
+    image: nishantkalia13/order-service:latest
+    container_name: order-container
+    ports:
+      - "8002:8002"
+    restart: always
+    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/order_service
+#      SPRING_DATASOURCE_USERNAME: root
+#      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888 
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    depends_on:
+      - mysql
+      - kafka
+      - discovery-server
+      - config-server 
+    networks:
+      - spring-network
+      
+  product-service:
+     image: nishantkalia13/product-service:latest
+     container_name: product-service
+     ports:
+        - "8003:8003"
+     depends_on:
+        - mysql 
+        - discovery-server 
+        - config-server 
+     environment:
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+        SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888 
+     networks:
+        - spring-network 
+        
+  payment-service:
+     image: nishantkalia13/payment-service:latest
+     container_name: payment-service
+     ports:
+        - "8007:8007"
+     depends_on:
+        - mysql 
+        - config-server 
+        - discovery-server 
+     environment:
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+        SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+     networks:
+        - spring-network  
+        
+  notification-service:
+     image: nishantkalia13/notification-service:latest
+     container_name: notification-service
+     ports:
+        - "8006:8006"
+     depends_on:
+        - config-server 
+        - discovery-server
+        - kafka 
+     environment:
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+        SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+        SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092  
+     networks:
+        - spring-network 
+
+ 
+ 
+
+  
+
+#networks:
+#  spring-network:
+#    driver: bridge
 
 #volumes:
 #  mysql_data:

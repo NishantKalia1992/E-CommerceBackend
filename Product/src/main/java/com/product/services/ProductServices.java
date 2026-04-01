@@ -24,6 +24,7 @@ public interface ProductServices {
 	List<CategoryResponse> getAllCategories();
 	
 	ProductPurchaseResponse purchaseProduct(ProductPurchaseRequest purchaseRequest);
-	List<ProductPurchaseResponse> listOfPurchaseItem();
+	List<ProductPurchaseResponse> listOfPurchaseItem(List<ProductPurchaseRequest> requests);
+	void releaseProduct(List<ProductPurchaseRequest> requests);
 	
 }

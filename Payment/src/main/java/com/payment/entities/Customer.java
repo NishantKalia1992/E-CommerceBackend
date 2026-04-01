@@ -1,19 +1,16 @@
 package com.payment.entities;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-public class Customer {
-	private long id;
-	@NotNull(message = "Full name is required")
-	private String fullName;
-	@NotNull(message = "username must required")
-	private String username;
+public record Customer(
+		String id,
+		@NotNull(message = "first name must be required")
+		String firstName,
+		@NotNull(message = "last name must be required")
+		String lastName,
+		@NotNull(message = "Email cannot be empty")
+		@Email(message = "email must be proper formated")
+		String email) {
+
 }

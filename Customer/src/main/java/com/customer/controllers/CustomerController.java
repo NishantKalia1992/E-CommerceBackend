@@ -27,6 +27,11 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/auth/customer")
 @CrossOrigin(origins = "*")
 public class CustomerController {
+	
+
+@org.springframework.beans.factory.annotation.Value("${server.port}")
+	private String port;
+	
 	@Autowired
 	CustomerServices customerServices;
 	
@@ -36,12 +41,23 @@ public class CustomerController {
 		SuccessResponse<CustomerResponse> response = new SuccessResponse<>(HttpStatus.CREATED, "Customer Register Successfully", customer);
 		return new ResponseEntity<> (response, HttpStatus.CREATED);
 	}
+	
 	@PutMapping("/edit/{username}")
 	public ResponseEntity<SuccessResponse<CustomerResponse>> editCustomer(@PathVariable String username, @Valid @RequestBody CustomerRequest request){
 		CustomerResponse customerResponse = customerServices.editCustomer(username, request);
 		SuccessResponse<CustomerResponse> successResponse = new SuccessResponse<>(HttpStatus.ACCEPTED, "Customer information edited succssfully", customerResponse);
 		return new ResponseEntity<>(successResponse, HttpStatus.ACCEPTED);
 	}
+	
+	@GetMapping("/username/{username}")
+	public ResponseEntity<SuccessResponse<CustomerResponse>> getUsername(@PathVariable String username){
+		CustomerResponse customerResponse = customerServices.getUsername(username);
+		String message = "Username found successful by instance on PORT: " + port;
+		SuccessResponse<CustomerResponse> response = new SuccessResponse<>(HttpStatus.OK, message, customerResponse);
+		return new ResponseEntity<SuccessResponse<CustomerResponse>>(response, HttpStatus.OK);
+	}
+	
+	
 	@GetMapping("/getDetails")
 	public ResponseEntity<SuccessResponse<CustomerResponse>> getDetails(
 			@RequestParam(required = false) String contactNo, 
@@ -59,10 +75,17 @@ public class CustomerController {
 		SuccessResponse<CustomerResponse> successResponse = new SuccessResponse<>(HttpStatus.OK, "Customer id found successful ", customerId);
 		return new ResponseEntity<SuccessResponse<CustomerResponse>>(successResponse, HttpStatus.OK);
 	}
-	
+		
 	@DeleteMapping("/delete/{contactNo}")
 	public ResponseEntity<SuccessResponse<CustomerResponse>> deleteCustomer(@PathVariable String contactNo){
 		CustomerResponse customer = customerServices.deleteCustomer(contactNo);
+		SuccessResponse<CustomerResponse> response = new SuccessResponse<>(HttpStatus.OK, "Customer Account delete successfully !", customer);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@DeleteMapping("/deleteId/{id}")
+	public ResponseEntity<SuccessResponse<CustomerResponse>> deleteCustomerId(@PathVariable Long id){
+		CustomerResponse customer = customerServices.deleteCustomerId(id);
 		SuccessResponse<CustomerResponse> response = new SuccessResponse<>(HttpStatus.OK, "Customer Account delete successfully !", customer);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

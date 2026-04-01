@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.customer.entities.Address;
@@ -19,6 +20,8 @@ import com.customer.responseDto.AddressResponse;
 import com.customer.responseDto.CustomerResponse;
 import com.customer.services.CustomerServices;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class CustomerServiceImpl implements CustomerServices {
 
@@ -28,7 +31,9 @@ public class CustomerServiceImpl implements CustomerServices {
 	CustomerRepository customerRepository;
 	@Autowired
 	AddressRepository addressRepository;
-
+	@Autowired
+	PasswordEncoder encoder;
+	
 	@Override
 	public CustomerResponse createCustomer(CustomerRequest request) {
 		LOGGER.info("create customer called !", request.getFullName());
@@ -39,7 +44,7 @@ public class CustomerServiceImpl implements CustomerServices {
 
 		customer.setFullName(request.getFullName());
 		customer.setUsername(request.getUsername());
-		customer.setPassword(request.getPassword());
+		customer.setPassword(encoder.encode(request.getPassword()));
 		customer.setContactNo(request.getContactNo());
 
 		Customer save = customerRepository.save(customer);
@@ -55,7 +60,7 @@ public class CustomerServiceImpl implements CustomerServices {
 				() -> new ResourceNotFoundException("Username not found with username : " + request.getUsername()));
 
 		customer.setFullName(request.getFullName());
-		customer.setPassword(request.getPassword());
+		customer.setPassword(encoder.encode(request.getPassword()));
 		customer.setContactNo(request.getContactNo());
 
 		Customer save = customerRepository.save(customer);
@@ -91,11 +96,27 @@ public class CustomerServiceImpl implements CustomerServices {
 		return mapCusotmerToCustomerResponse(customer);
 	}
 	
-	
+//	@Transactional
 	@Override
 	public CustomerResponse deleteCustomer(String contactNo) {
 		LOGGER.info("Deleting customer account ",contactNo);
 		Customer customer = customerRepository.findByContactNo(contactNo).orElseThrow(()-> new ResourceNotFoundException("User account not found"));
+		customerRepository.delete(customer);
+		return mapCusotmerToCustomerResponse(customer);
+	}
+
+	@Override
+	public CustomerResponse deleteCustomerId(Long id) {
+		LOGGER.info("Deleting customer account by id ",id);
+		Customer customer = customerRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("User account not found by id : "+id));
+		customerRepository.delete(customer);
+		return null;
+	}
+	
+	@Override
+	public CustomerResponse getUsername(String username) {
+		LOGGER.info("finding username ",username);
+		Customer customer = customerRepository.findByUsername(username).orElseThrow(()-> new ResourceNotFoundException("username not found by : "+username));
 		return mapCusotmerToCustomerResponse(customer);
 	}
 
@@ -139,7 +160,7 @@ public class CustomerServiceImpl implements CustomerServices {
 		Address address = addressRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Address if not found with address Id : "+id));
 		return mapAddressToAddressResponse(address);
 	}
-
+//	@Transactional
 	@Override
 	public AddressResponse deleteAddress(Long id) {
 		LOGGER.info("Delete address called!");
@@ -169,5 +190,6 @@ public class CustomerServiceImpl implements CustomerServices {
 		return response;
 	}
 
+	
 	
 }

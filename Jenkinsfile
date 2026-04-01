@@ -14,6 +14,22 @@ pipeline {
             }
         }
         
+       /* INFRASTRUCTURE SERVICES-----------*/
+       
+        stage('Build & push Config Server'){
+			steps{
+				dir('config_server'){
+					echo 'Building Config server...'
+					bat 'mvn clean package -DskipTests'
+					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+						bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
+						bat 'docker build -t %DOCKERHUB_USERNAME%/config-server:latest .'
+						bat 'docker push %DOCKERHUB_USERNAME%/config-server:latest'
+					}
+				}
+			}
+		}
+        
         stage('Build & Push Service Registry') {
             steps {
                 dir('ServiceRegistry') { 
@@ -27,6 +43,31 @@ pipeline {
                 }
             }
         }
+        
+        stage('Build & push API gateway & Auth Service') {
+			steps {
+				dir('Gateway') {
+					echo 'Building Api Gateway Service...'
+					bat 'mvn clean package -DskipTests'
+					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+						bat "docker login -u %DOCKERHUB_USERNAME% -P %DOCKERHUB_PASSWORD%"
+						bat 'docker build -t %DOCKERHUB_USERNAME%/gateway-service:latest .'
+						bat 'docker push %DOCKERHUB_USERNAME%/gateway-service:latest'
+					}
+				}
+				dir('auth-service') {
+					echo 'Building Auth Service...'
+					bat 'mvn clean package -DskipTests'
+					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+						bat "docker login -u %DOCKERHUB_USERNAME% -P %DOCKERHUB_PASSWORD%"
+						bat 'docker build -t %DOCKERHUB_USERNAME%/auth-service:latest .'
+						bat 'docker push %DOCKERHUB_USERNAME%auth-service:latest'
+					}
+				}
+			}
+		}
+		
+//		CORE MICROSERVICES ---------------------
         
         stage('Build & Push Customer Service') {
             steps {
@@ -54,20 +95,56 @@ pipeline {
             }
         }
         
-        /*stage('Deploy Ecosystem') {
+        stage('Build & push Product service') {
+			steps {
+				dir('Product') {
+					echo 'Building Product Service...'
+					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+						bat 'docker build -t %DOCKERHUB_USERNAME%/product-service:latest .'
+						bat 'docker push %DOCKERHUB_USERNAME%/product-service:latest'
+					}
+				}
+			}
+		}
+		
+		stage('Build & push Payment Service') {
+			steps {
+				dir('Payment') {
+					echo 'mvn clean package -DskipTests'
+					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+						bat 'docker build -t %DOCKERHUB_USERNAME%/payment-service:latest .'
+						bat 'docker push %DOCKERHUB_USERNAME%/payment-service:latest'
+					}
+				}
+			}
+		}
+		
+		stage('Build & Push Notification Service') {
+			steps {
+				dir('Notification-Service') {
+					echo 'mvn clean package -DskipTests'
+					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+						bat 'docker build -t %DOCKERHUB_USERNAME%/notification-service:latest .'
+						bat 'docker push %DOCKERHUB_USERNAME%/notification-service:latest'
+					}
+				}
+			}
+		}
+        
+        stage('Deploy Ecosystem') {
             steps {
                 echo 'Cleaning up any ghost containers...'                
                 // The "|| echo" trick forces Jenkins to keep going even if the containers don't exist
-                bat 'docker rm -f service-registry customer-service order-container || echo "Containers already clean"'
+                bat 'docker rm -f config-server service-registry gateway-service auth-service customer-service order-container product-service payment-service notification-service|| echo "Containers already clean"'
                 
                 echo 'Starting Discovery, Customer, Order, Kafka, and MySQL simultaneously...'
                 bat 'docker-compose down'
                 bat 'docker-compose up -d'
             }
-        }*/
+        }
         // --- 4. DEPLOY TO AWS CLOUD ---
         // --- 4. DEPLOY TO AWS CLOUD ---
-        stage('Deploy to AWS') {
+      /*  stage('Deploy to AWS') {
             steps {
                 echo 'Connecting to AWS EC2 Server...'
                 
@@ -77,6 +154,6 @@ pipeline {
                 ssh -i "D:\\Tools\\aws-microservices-key.pem" -o StrictHostKeyChecking=no ubuntu@18.213.2.127 "cd E-CommerceBackend && git pull origin main && docker-compose down && docker-compose pull && docker-compose up -d"
                 '''
             }
-        }
+        }*/
     }
 }

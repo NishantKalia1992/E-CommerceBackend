@@ -40,7 +40,7 @@ public class Order {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	@Column(unique = true, nullable = false)
+	@Column(nullable = false)
 	private String refrence;
 	
 	private BigDecimal totalAmount;

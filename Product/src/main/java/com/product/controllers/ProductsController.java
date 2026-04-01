@@ -24,6 +24,7 @@ import com.product.services.ProductServices;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 @RestController
 @RequestMapping("/api/category")
@@ -114,4 +115,17 @@ public class ProductsController {
 		SuccessResponse<ProductPurchaseResponse> response = new SuccessResponse<>(HttpStatus.OK, "product purchased successful", purchaseProduct);
 		return new ResponseEntity<SuccessResponse<ProductPurchaseResponse>>(response, HttpStatus.OK);
 	}
+	@PostMapping("/getAllPurchasedList")
+	public ResponseEntity<SuccessResponse<List<ProductPurchaseResponse>>> purchaseMultipleProducts(@Valid @RequestBody List<ProductPurchaseRequest> requests) {	    
+	    List<ProductPurchaseResponse> purchaseItem = productServices.listOfPurchaseItem(requests);	    
+	    SuccessResponse<List<ProductPurchaseResponse>> response = new SuccessResponse<>(HttpStatus.OK, "Order list successful", purchaseItem);	
+	    return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	@PostMapping("/release")
+	public ResponseEntity<SuccessResponse<String>> releaseProduct(@RequestBody List<ProductPurchaseRequest> requests){
+		productServices.releaseProduct(requests);
+		SuccessResponse<String> response = new SuccessResponse<>(HttpStatus.OK, "Product successfully release back to inventory", "Success");
+		return new ResponseEntity<SuccessResponse<String>>(response, HttpStatus.OK);
+	}
+
 }
