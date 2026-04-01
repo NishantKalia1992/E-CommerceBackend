@@ -194,8 +194,6 @@ services :
      networks:
         - spring-network 
 
- 
- 
 
   
 
