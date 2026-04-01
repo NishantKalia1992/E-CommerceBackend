@@ -50,7 +50,7 @@ pipeline {
 					echo 'Building Api Gateway Service...'
 					bat 'mvn clean package -DskipTests'
 					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-						bat "docker login -u %DOCKERHUB_USERNAME% -P %DOCKERHUB_PASSWORD%"
+						bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
 						bat 'docker build -t %DOCKERHUB_USERNAME%/gateway-service:latest .'
 						bat 'docker push %DOCKERHUB_USERNAME%/gateway-service:latest'
 					}
@@ -59,7 +59,7 @@ pipeline {
 					echo 'Building Auth Service...'
 					bat 'mvn clean package -DskipTests'
 					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-						bat "docker login -u %DOCKERHUB_USERNAME% -P %DOCKERHUB_PASSWORD%"
+						bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
 						bat 'docker build -t %DOCKERHUB_USERNAME%/auth-service:latest .'
 						bat 'docker push %DOCKERHUB_USERNAME%auth-service:latest'
 					}
