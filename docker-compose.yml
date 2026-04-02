@@ -4,6 +4,9 @@ version: '3.8'
 networks:
    spring-network:
       driver: bridge 
+
+volumes:
+  mysql_data:
 #=========================================================================================
    # 2. MySQL Database & messaging
 services :
@@ -201,5 +204,3 @@ services :
 #  spring-network:
 #    driver: bridge
 
-#volumes:
-#  mysql_data:

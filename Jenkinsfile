@@ -5,8 +5,16 @@ pipeline {
         maven 'Maven_3_9_9' 
         jdk 'jdk-21'
     }
+    //Adding this line to limit the size 
+    environment {
+        // Limit Maven's RAM usage to 512MB per build so your laptop doesn't crash
+        MAVEN_OPTS = '-Xmx512m'
+        // Create a universal variable for your Docker username
+        DOCKER_USER = 'nishantkalia13' 
+    }
     
     stages {
+		
         stage('Checkout') {
             steps {
                 echo 'Downloading entire E-Commerce Backend from GitHub...'
@@ -14,127 +22,84 @@ pipeline {
             }
         }
         
-       /* INFRASTRUCTURE SERVICES-----------*/
-       
-        stage('Build & push Config Server'){
-			steps{
-				dir('config_server'){
-					echo 'Building Config server...'
-					bat 'mvn clean package -DskipTests'
-					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-						bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
-						bat 'docker build -t %DOCKERHUB_USERNAME%/config-server:latest .'
-						bat 'docker push %DOCKERHUB_USERNAME%/config-server:latest'
-					}
-				}
-			}
-		}
-        
-        stage('Build & Push Service Registry') {
+        // --- NEW: GLOBAL DOCKER LOGIN  ONCE WILL LOGIN DOESN'T REQUIRE EVERYTIME---
+        stage('Login to Docker') {
             steps {
-                dir('ServiceRegistry') { 
+                echo 'Authenticating with DockerHub...'
+                withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    bat 'docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%'
+                }
+            }
+        }
+        
+        // --- FAST SEQUENTIAL BUILDS ---
+        // Running these sequentially on a laptop is FASTER and safer than parallel
+        stage('Build Infrastructure Services') {
+            steps {
+                dir('config_server') {
+                    echo 'Building Config Server...'
+                    // Pointing to a shared local cache stops Maven from re-downloading the internet
+                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                    bat "docker build -t ${DOCKER_USER}/config-server:latest ."
+                    bat "docker push ${DOCKER_USER}/config-server:latest"
+                }
+                dir('ServiceRegistry') {
                     echo 'Building Discovery Server...'
-                    bat 'mvn clean package -DskipTests'
-                    withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
-                        bat 'docker build -t %DOCKERHUB_USERNAME%/service-registry:latest .'
-                        bat 'docker push %DOCKERHUB_USERNAME%/service-registry:latest'
-                    }
+                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                    bat "docker build -t ${DOCKER_USER}/service-registry:latest ."
+                    bat "docker push ${DOCKER_USER}/service-registry:latest"
+                }
+                dir('Gateway') {
+                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                    bat "docker build -t ${DOCKER_USER}/api-gateway:latest ."
+                    bat "docker push ${DOCKER_USER}/api-gateway:latest"
                 }
             }
         }
-        
-        stage('Build & push API gateway & Auth Service') {
-			steps {
-				dir('Gateway') {
-					echo 'Building Api Gateway Service...'
-					bat 'mvn clean package -DskipTests'
-					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-						bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
-						bat 'docker build -t %DOCKERHUB_USERNAME%/gateway-service:latest .'
-						bat 'docker push %DOCKERHUB_USERNAME%/gateway-service:latest'
-					}
-				}
-				dir('auth-service') {
-					echo 'Building Auth Service...'
-					bat 'mvn clean package -DskipTests'
-					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-						bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
-						bat 'docker build -t %DOCKERHUB_USERNAME%/auth-service:latest .'
-						bat 'docker push %DOCKERHUB_USERNAME%/auth-service:latest'
-					}
-				}
-			}
-		}
-		
-//		CORE MICROSERVICES ---------------------
-        
-        stage('Build & Push Customer Service') {
+       stage('Build Core Services') {
             steps {
+                dir('auth-service') {
+                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                    bat "docker build -t ${DOCKER_USER}/auth-service:latest ."
+                    bat "docker push ${DOCKER_USER}/auth-service:latest"
+                }
                 dir('Customer') {
-                    echo 'Building Customer Service...'
-                    bat 'mvn clean package -DskipTests'
-                    withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        bat 'docker build -t %DOCKERHUB_USERNAME%/customer-service:latest .'
-                        bat 'docker push %DOCKERHUB_USERNAME%/customer-service:latest'
-                    }
+                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                    bat "docker build -t ${DOCKER_USER}/customer-service:latest ."
+                    bat "docker push ${DOCKER_USER}/customer-service:latest"
                 }
-            }
-        }
-
-        stage('Build & Push Order Service') {
-            steps {
+                dir('Product') {
+                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                    bat "docker build -t ${DOCKER_USER}/product-service:latest ."
+                    bat "docker push ${DOCKER_USER}/product-service:latest"
+                }
                 dir('Order') {
-                    echo 'Building Order Service...'
-                    bat 'mvn clean package -DskipTests'
-                    withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        bat 'docker build -t %DOCKERHUB_USERNAME%/order-service:latest .'
-                        bat 'docker push %DOCKERHUB_USERNAME%/order-service:latest'
-                    }
+                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                    bat "docker build -t ${DOCKER_USER}/order-service:latest ."
+                    bat "docker push ${DOCKER_USER}/order-service:latest"
+                }
+                dir('Payment') {
+                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                    bat "docker build -t ${DOCKER_USER}/payment-service:latest ."
+                    bat "docker push ${DOCKER_USER}/payment-service:latest"
+                }
+                dir('Notification-Service') {
+                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                    bat "docker build -t ${DOCKER_USER}/notification-service:latest ."
+                    bat "docker push ${DOCKER_USER}/notification-service:latest"
                 }
             }
         }
         
-        stage('Build & push Product service') {
-			steps {
-				dir('Product') {
-					echo 'Building Product Service...'
-                    bat 'mvn clean package -DskipTests'
-					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-						bat 'docker build -t %DOCKERHUB_USERNAME%/product-service:latest .'
-						bat 'docker push %DOCKERHUB_USERNAME%/product-service:latest'
-					}
-				}
-			}
-		}
-		
-		stage('Build & push Payment Service') {
-			steps {
-				dir('Payment') {
-					echo 'mvn clean package -DskipTests'
-                    bat 'mvn clean package -DskipTests'
-					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-						bat 'docker build -t %DOCKERHUB_USERNAME%/payment-service:latest .'
-						bat 'docker push %DOCKERHUB_USERNAME%/payment-service:latest'
-					}
-				}
-			}
-		}
-		
-		stage('Build & Push Notification Service') {
-			steps {
-				dir('Notification-Service') {
-					echo 'mvn clean package -DskipTests'
-                    bat 'mvn clean package -DskipTests'
-					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-						bat 'docker build -t %DOCKERHUB_USERNAME%/notification-service:latest .'
-						bat 'docker push %DOCKERHUB_USERNAME%/notification-service:latest'
-					}
-				}
-			}
-		}
+        stage('Deploy Ecosystem Locally') {
+            steps {
+                echo 'Starting entire E-Commerce Architecture on Local Docker...'
+                bat 'docker-compose down'
+                bat 'docker-compose up -d'
+            }
+        }
         
-        stage('Deploy Ecosystem') {
+        /*stage('Deploy Ecosystem') {
             steps {
                 echo 'Cleaning up any ghost containers...'                
                 // The "|| echo" trick forces Jenkins to keep going even if the containers don't exist
@@ -144,7 +109,7 @@ pipeline {
                 bat 'docker-compose down'
                 bat 'docker-compose up -d'
             }
-        }
+        }*/
         // --- 4. DEPLOY TO AWS CLOUD ---
         // --- 4. DEPLOY TO AWS CLOUD ---
       /*  stage('Deploy to AWS') {
