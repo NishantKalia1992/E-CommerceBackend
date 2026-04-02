@@ -61,7 +61,7 @@ pipeline {
 					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
 						bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
 						bat 'docker build -t %DOCKERHUB_USERNAME%/auth-service:latest .'
-						bat 'docker push %DOCKERHUB_USERNAME%auth-service:latest'
+						bat 'docker push %DOCKERHUB_USERNAME%/auth-service:latest'
 					}
 				}
 			}
