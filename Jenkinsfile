@@ -99,6 +99,7 @@ pipeline {
 			steps {
 				dir('Product') {
 					echo 'Building Product Service...'
+                    bat 'mvn clean package -DskipTests'
 					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
 						bat 'docker build -t %DOCKERHUB_USERNAME%/product-service:latest .'
 						bat 'docker push %DOCKERHUB_USERNAME%/product-service:latest'
@@ -111,6 +112,7 @@ pipeline {
 			steps {
 				dir('Payment') {
 					echo 'mvn clean package -DskipTests'
+                    bat 'mvn clean package -DskipTests'
 					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
 						bat 'docker build -t %DOCKERHUB_USERNAME%/payment-service:latest .'
 						bat 'docker push %DOCKERHUB_USERNAME%/payment-service:latest'
@@ -123,6 +125,7 @@ pipeline {
 			steps {
 				dir('Notification-Service') {
 					echo 'mvn clean package -DskipTests'
+                    bat 'mvn clean package -DskipTests'
 					withCredentials([usernamePassword(credentialsId: 'order-credential-Id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
 						bat 'docker build -t %DOCKERHUB_USERNAME%/notification-service:latest .'
 						bat 'docker push %DOCKERHUB_USERNAME%/notification-service:latest'
