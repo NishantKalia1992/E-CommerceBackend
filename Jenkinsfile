@@ -96,7 +96,7 @@ pipeline {
         stage('Deploy Ecosystem Locally') {
             steps {
                 echo 'Starting entire E-Commerce Architecture on Local Docker...'
-                bat 'docker-compose down'
+                bat 'docker-compose down --remove-orphans'
                 bat 'docker-compose up -d'
             }
         }
