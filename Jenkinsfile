@@ -125,5 +125,24 @@ pipeline {
                 '''
             }
         }*/
+        
+        
+    }
+    // --- FULLY AUTOMATED SYSTEM CLEANUP ---
+    post {
+        always {
+            echo 'Pipeline finished! Running deep clean to protect D: drive...'
+            
+            // 1. Clear out dead/failed containers from mid-build crashes
+            bat 'docker container prune -f'
+            
+            // 2. Remove all unnamed, dangling ghost images
+            bat 'docker image prune -f'
+            
+            // 3. Wipe the hidden build cache
+            bat 'docker builder prune -a -f'
+            
+            echo 'Deep clean complete. Your system memory and storage are safe.'
+        }
     }
 }
