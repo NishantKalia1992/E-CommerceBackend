@@ -121,9 +121,9 @@ public class CustomerServiceImpl implements CustomerServices {
 	}
 
 	@Override
-	public AddressResponse addAddress(String contactNo, AddressRequest request) {
+	public AddressResponse addAddress(String username, AddressRequest request) {
 		LOGGER.info("Add address by customer contact no");
-		Customer customer = customerRepository.findByContactNo(contactNo).orElseThrow(()-> new ResourceNotFoundException("Customer contact no not found : "+contactNo));
+		Customer customer = customerRepository.findByUsername(username).orElseThrow(()-> new ResourceNotFoundException("Customer contact no not found : "+username));
 		Address address = new Address();
 		address.setHouseNo(request.getHouseNo());
 		address.setStreet(request.getStreet());

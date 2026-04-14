@@ -90,9 +90,9 @@ public class CustomerController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
-	@PostMapping("/addAddress/{contactNo}")
-	public ResponseEntity<SuccessResponse<AddressResponse>> addAddress(@PathVariable String contactNo, @Valid @RequestBody AddressRequest request){
-		AddressResponse address = customerServices.addAddress(contactNo, request);
+	@PostMapping("/addAddress/{username}")
+	public ResponseEntity<SuccessResponse<AddressResponse>> addAddress(@PathVariable String username, @Valid @RequestBody AddressRequest request){
+		AddressResponse address = customerServices.addAddress(username, request);
 		SuccessResponse<AddressResponse> response = new SuccessResponse<>(HttpStatus.CREATED, "Address added successfully ", address);
 		return new ResponseEntity<>(response,HttpStatus.CREATED);
 	}
