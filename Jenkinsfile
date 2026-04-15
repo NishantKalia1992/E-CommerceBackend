@@ -41,18 +41,18 @@ pipeline {
                 dir('config_server') {
                     echo 'Building Config Server...'
                     // Pointing to a shared local cache stops Maven from re-downloading the internet
-                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                   bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\Users\\Dell\\.m2\\repository'
                     bat "docker build -t ${DOCKER_USER}/config-server:latest ."
                     bat "docker push ${DOCKER_USER}/config-server:latest"
                 }
                 dir('ServiceRegistry') {
                     echo 'Building Discovery Server...'
-                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                   bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\Users\\Dell\\.m2\\repository'
                     bat "docker build -t ${DOCKER_USER}/service-registry:latest ."
                     bat "docker push ${DOCKER_USER}/service-registry:latest"
                 }
                 dir('Gateway') {
-                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                   bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\Users\\Dell\\.m2\\repository'
                     bat "docker build -t ${DOCKER_USER}/api-gateway:latest ."
                     bat "docker push ${DOCKER_USER}/api-gateway:latest"
                 }
@@ -61,32 +61,32 @@ pipeline {
        stage('Build Core Services') {
             steps {
                 dir('auth-service') {
-                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                   bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\Users\\Dell\\.m2\\repository'
                     bat "docker build -t ${DOCKER_USER}/auth-service:latest ."
                     bat "docker push ${DOCKER_USER}/auth-service:latest"
                 }
                 dir('Customer') {
-                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                   bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\Users\\Dell\\.m2\\repository'
                     bat "docker build -t ${DOCKER_USER}/customer-service:latest ."
                     bat "docker push ${DOCKER_USER}/customer-service:latest"
                 }
                 dir('Product') {
-                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                   bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\Users\\Dell\\.m2\\repository'
                     bat "docker build -t ${DOCKER_USER}/product-service:latest ."
                     bat "docker push ${DOCKER_USER}/product-service:latest"
                 }
                 dir('Order') {
-                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                   bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\Users\\Dell\\.m2\\repository'
                     bat "docker build -t ${DOCKER_USER}/order-service:latest ."
                     bat "docker push ${DOCKER_USER}/order-service:latest"
                 }
                 dir('Payment') {
-                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                   bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\Users\\Dell\\.m2\\repository'
                     bat "docker build -t ${DOCKER_USER}/payment-service:latest ."
                     bat "docker push ${DOCKER_USER}/payment-service:latest"
                 }
                 dir('Notification-Service') {
-                    bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\.m2\\repository'
+                   bat 'mvn clean package -DskipTests -Dmaven.repo.local=C:\\Users\\Dell\\.m2\\repository'
                     bat "docker build -t ${DOCKER_USER}/notification-service:latest ."
                     bat "docker push ${DOCKER_USER}/notification-service:latest"
                 }
