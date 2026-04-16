@@ -70,8 +70,9 @@ services :
       - "8761:8761"
     depends_on:
       - config-server
+    restart: on-failure
     environment:
-       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888 
+        CONFIG_SERVER_URL: http://config-server:8888 
     networks:
       - spring-network
       
@@ -83,8 +84,9 @@ services :
      depends_on:
         - config-server
         - discovery-server
+     restart: on-failure
      environment:
-        SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888 
+        CONFIG_SERVER_URL: http://config-server:8888 
         EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
      networks:
         - spring-network 
@@ -101,8 +103,9 @@ services :
         - config-server 
         - discovery-server 
         - mysql
+     restart: on-failure
      environment:
-        SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888 
+        CONFIG_SERVER_URL: http://config-server:8888  
         EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
         SPRING_PROFILES_ACTIVE: qa
      networks:
@@ -114,14 +117,14 @@ services :
     container_name: customer-service
     ports:
       - "8001:8001" 
-    restart: always
+    restart: on-failure
     environment:
 #      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/customer_service
 #      SPRING_DATASOURCE_USERNAME: root
 #      SPRING_DATASOURCE_PASSWORD: root
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888 
+      CONFIG_SERVER_URL: http://config-server:8888 
       SPRING_PROFILES_ACTIVE: qa
     depends_on:
  #     - mysql    Need to delete because its no longer, when we move to cloud
@@ -137,12 +140,12 @@ services :
     container_name: order-container
     ports:
       - "8002:8002"
-    restart: always
+    restart: on-failure
     environment:
 #      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/order_service
 #      SPRING_DATASOURCE_USERNAME: root
 #      SPRING_DATASOURCE_PASSWORD: root
-      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888 
+      CONFIG_SERVER_URL: http://config-server:8888 
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_PROFILES_ACTIVE: qa
@@ -163,9 +166,10 @@ services :
         - mysql 
         - discovery-server 
         - config-server 
+     restart: on-failure
      environment:
         EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-        SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888 
+        CONFIG_SERVER_URL: http://config-server:8888  
      networks:
         - spring-network 
         
@@ -177,10 +181,11 @@ services :
      depends_on:
         - mysql 
         - config-server 
-        - discovery-server 
+        - discovery-server
+     restart: on-failure 
      environment:
         EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-        SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+        CONFIG_SERVER_URL: http://config-server:8888 
      networks:
         - spring-network  
         
@@ -193,9 +198,10 @@ services :
         - config-server 
         - discovery-server
         - kafka 
+     restart: on-failure
      environment:
         EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-        SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+        CONFIG_SERVER_URL: http://config-server:8888 
         SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092  
      networks:
         - spring-network 
