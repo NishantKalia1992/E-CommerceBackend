@@ -119,9 +119,12 @@ services :
       - "8001:8001" 
     restart: on-failure
     environment:
-#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/customer_service
-#      SPRING_DATASOURCE_USERNAME: root
-#      SPRING_DATASOURCE_PASSWORD: root
+# Database Configuration
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/order_service
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      
       - SPRING_KAFKA_BOOTSTRAP_SERVERS= kafka:9092
       - SPRING_PROFILES_ACTIVE=qa
       - CONFIG_SERVER_URL=http://config-server:8888
@@ -142,18 +145,17 @@ services :
       - "8002:8002"
     restart: on-failure
     environment:
-#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/order_service
-#      SPRING_DATASOURCE_USERNAME: root
-#      SPRING_DATASOURCE_PASSWORD: root
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS= kafka:9092
+      # --- Array Syntax (Hyphens and Equals Signs) ---
       - SPRING_PROFILES_ACTIVE=qa
       - CONFIG_SERVER_URL=http://config-server:8888
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
-    depends_on:
-      - mysql
-      - kafka
-      - discovery-server
-      - config-server 
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      
+      # Database Configuration
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/order_service
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
     networks:
       - spring-network
       
@@ -168,10 +170,18 @@ services :
         - config-server 
      restart: on-failure
      environment:
-        - CONFIG_SERVER_URL=http://config-server:8888
-        - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      # --- Array Syntax (Hyphens and Equals Signs) ---
+      - SPRING_PROFILES_ACTIVE=qa
+      - CONFIG_SERVER_URL=http://config-server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      
+      # Database Configuration
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/product_service
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
      networks:
-        - spring-network 
+      - spring-network 
         
   payment-service:
      image: nishantkalia13/payment-service:latest
