@@ -7,7 +7,9 @@ import com.customer.responseDto.CustomerResponse;
 
 public interface CustomerServices {
 	CustomerResponse createCustomer(CustomerRequest request);
+	CustomerResponse registerWithGoogle(CustomerRequest request);
 	CustomerResponse editCustomer(String username, CustomerRequest request);
+	CustomerResponse profileComplete(String username, CustomerRequest request);
 	CustomerResponse findCustomer(String contactNo, Long customerId, String username);
 	CustomerResponse deleteCustomer(String contactNo);
 	CustomerResponse deleteCustomerId(Long id);

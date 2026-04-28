@@ -42,6 +42,20 @@ public class CustomerController {
 		return new ResponseEntity<> (response, HttpStatus.CREATED);
 	}
 	
+	@PostMapping("/google-register")
+	public ResponseEntity<SuccessResponse<CustomerResponse>> googleRegister(@Valid @RequestBody CustomerRequest request){
+		CustomerResponse registerWithGoogle = customerServices.registerWithGoogle(request);
+		SuccessResponse<CustomerResponse> successResponse = new SuccessResponse<>(HttpStatus.CREATED, "Google user registered successfully", registerWithGoogle);
+		return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
+	}
+	
+	@PostMapping("/updateProfile/{username}")
+	public ResponseEntity<SuccessResponse<CustomerResponse>> updatProfile(@PathVariable String username, @Valid @RequestBody CustomerRequest request){
+		CustomerResponse profileComplete = customerServices.profileComplete(username, request);
+		SuccessResponse<CustomerResponse> successResponse = new SuccessResponse<>(HttpStatus.CREATED, "Profile update completed", profileComplete);
+		return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
+	}
+	
 	@PutMapping("/edit/{username}")
 	public ResponseEntity<SuccessResponse<CustomerResponse>> editCustomer(@PathVariable String username, @Valid @RequestBody CustomerRequest request){
 		CustomerResponse customerResponse = customerServices.editCustomer(username, request);

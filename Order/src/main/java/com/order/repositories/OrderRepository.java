@@ -10,7 +10,7 @@ import com.order.entities.Order;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 	
 //	to resolve n+1 query problem
-	@Query("SELECT o FROM ORDER o JOIN FETCH o.customer") 
-	List<Order> findAllOrdersWithCustomer();
+//	@Query("SELECT o FROM Order o JOIN FETCH o.Customer") 
+//	List<Order> findAllOrdersWithCustomer();
 
 }

@@ -20,5 +20,6 @@ public class CustomerRequest {
 	private String username;
 	private String password;
 	private String contactNo;
+	private String authProvider="LOCAL";
 	private List<Address> address = new ArrayList<>();
 }

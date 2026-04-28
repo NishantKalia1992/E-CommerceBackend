@@ -51,7 +51,28 @@ public class CustomerServiceImpl implements CustomerServices {
 		return mapCusotmerToCustomerResponse(save);
 
 	}
+	
+	@Override
+	public CustomerResponse registerWithGoogle(CustomerRequest request) {
+		Customer customer = new Customer();
+		customer.setFullName(request.getFullName());
+		customer.setUsername(request.getUsername());
+		customer.setAuthProvider("GOOGLE");
+		Customer save = customerRepository.save(customer);
+		return mapCusotmerToCustomerResponse(save);
+	}
 
+	@Override
+	public CustomerResponse profileComplete(String username, CustomerRequest request) {
+		LOGGER.info("update profile called - ", username);
+		Customer customer = customerRepository.findByUsername(username).orElseThrow(()-> new ResourceNotFoundException("username not found - "+username));
+		customer.setContactNo(request.getContactNo());
+		customer.setPassword(encoder.encode(request.getPassword()));
+		Customer save = customerRepository.save(customer);
+		return mapCusotmerToCustomerResponse(save);
+	}
+
+		
 	@Override
 	public CustomerResponse editCustomer(String username, CustomerRequest request) {
 		LOGGER.info("edit customer information called : " + request.getFullName());
@@ -190,6 +211,5 @@ public class CustomerServiceImpl implements CustomerServices {
 		return response;
 	}
 
-	
 	
 }

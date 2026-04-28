@@ -13,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "Customer-Data")
 public class Customer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,11 +32,12 @@ public class Customer {
 	private String fullName;
 	@Column(unique = true)
 	private String username;
-	@Column(nullable = false)
 	private String password;
-	@Column(nullable = false)
 	private String contactNo;
+	private String authProvider = "LOCAL";
+	
 	@OneToMany(mappedBy = "customer", fetch = FetchType.LAZY,cascade = CascadeType.ALL)
 	@JsonIgnore
 	private List<Address> address = new ArrayList<>();
 }
+;

@@ -20,6 +20,9 @@ public class SecurityConfig {
 	@Autowired
 	private CustomUserDetailsService userDetailsService;
 	
+	@Autowired
+	private CustomOAuth2SuccessHandler successHandler;
+	
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable()) // 1. Disables CSRF so POST requests work
@@ -28,7 +31,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll() 
                 // 3. Any other URL requires a token
                 .anyRequest().authenticated()
-            );
+            )
+            .oauth2Login(oauth2 -> oauth2
+                    .successHandler(successHandler) 
+                );
         return http.build();
     }
     

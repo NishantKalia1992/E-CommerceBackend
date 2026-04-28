@@ -2,11 +2,13 @@ package com.product.services;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.product.requestDto.CategoryRequest;
-import com.product.requestDto.CategoryResponse;
 import com.product.requestDto.ProductPurchaseRequest;
-import com.product.requestDto.ProductPurchaseResponse;
 import com.product.requestDto.ProductRequest;
+import com.product.responseDto.CategoryResponse;
+import com.product.responseDto.ProductPurchaseResponse;
 import com.product.responseDto.ProductResponse;
 
 public interface ProductServices {
@@ -27,4 +29,8 @@ public interface ProductServices {
 	List<ProductPurchaseResponse> listOfPurchaseItem(List<ProductPurchaseRequest> requests);
 	void releaseProduct(List<ProductPurchaseRequest> requests);
 	
+	ProductResponse addImageToProduct(long productId, String imageUrl);
+	ProductResponse uploadProductImages(List<MultipartFile> files, long productId);
+//	ProductResponse getProductWithImages(long productId);
+
 }

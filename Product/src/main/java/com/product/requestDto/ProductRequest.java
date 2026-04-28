@@ -1,8 +1,10 @@
 package com.product.requestDto;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import com.product.entities.Category;
+import com.product.entities.ProductImage;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,4 +23,5 @@ public class ProductRequest {
 	private BigDecimal price;
 	private long categoryId;
 	private Category category;
+	private List<ProductImage> images;
 }

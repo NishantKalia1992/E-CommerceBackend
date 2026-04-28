@@ -121,18 +121,18 @@ services :
     environment:
 # Database Configuration
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/order_service
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+#      - SPRING_DATASOURCE_USERNAME=root
+#      - SPRING_DATASOURCE_PASSWORD=root
+#      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
       
       - SPRING_KAFKA_BOOTSTRAP_SERVERS= kafka:9092
       - SPRING_PROFILES_ACTIVE=qa
-      - CONFIG_SERVER_URL=http://config-server:8888
+#      - CONFIG_SERVER_URL=http://config-server:8888
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     depends_on:
  #     - mysql    Need to delete because its no longer, when we move to cloud
       - discovery-server
-      - config-server 
+#      - config-server 
       - mysql 
     networks:
       - spring-network
